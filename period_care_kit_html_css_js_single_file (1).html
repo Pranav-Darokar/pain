@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Period Care Kit — made with love 💖</title>
+  <meta name="description" content="A tiny, offline-friendly care app to comfort period pain with heat timer, hydration nudges, breathing coach, tips, and sweet notes." />
+  <style>
+    :root{
+      --bg: #0b1020; /* deep navy */
+      --card: rgba(255,255,255,.07);
+      --muted: rgba(255,255,255,.6);
+      --text: #f7f7fb;
+      --accent: #ff6ea8; /* pink */
+      --accent-2: #7ad7ff; /* sky */
+      --good: #79e28a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1000px 600px at 80% -10%, #2b1f35 0, transparent 60%),
+                  radial-gradient(900px 500px at -10% 10%, #14234a 0, transparent 60%),
+                  linear-gradient(160deg,#0b1020,#0b1020 60%);
+      color: var(--text);
+    }
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:24px clamp(16px, 4vw, 36px);
+      position:sticky; top:0; backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(11,16,32,.85), rgba(11,16,32,.35));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      z-index: 50;
+    }
+    .brand{font-weight:800; letter-spacing:.4px; font-size: clamp(18px, 3.8vw, 28px)}
+    .brand .heart{filter: drop-shadow(0 0 6px rgba(255,110,168,.6))}
+    .container{max-width:1100px; margin: 0 auto; padding: 20px clamp(16px, 4vw, 36px) 60px}
+    .grid{display:grid; grid-template-columns: repeat(12, 1fr); gap:16px}
+    .card{
+      grid-column: span 12; border-radius: var(--radius); background: var(--card);
+      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.08);
+      overflow:hidden; position:relative;
+    }
+    .card h2{margin:0; font-size: 18px; letter-spacing:.2px}
+    .card .head{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .card .body{padding:16px 18px}
+    .hint{color:var(--muted); font-size:13px}
+    .row{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+    .btn{
+      appearance:none; border:1px solid rgba(255,255,255,.14); background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      color:var(--text); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; letter-spacing:.2px;
+      transition:.2s transform, .2s filter, .2s background; box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn:active{transform: translateY(0)}
+    .btn.pink{border-color: rgba(255,110,168,.5); box-shadow: 0 6px 24px rgba(255,110,168,.25)}
+    .btn.sky{border-color: rgba(122,215,255,.5); box-shadow: 0 6px 24px rgba(122,215,255,.25)}
+    .btn.good{border-color: rgba(121,226,138,.5); box-shadow: 0 6px 24px rgba(121,226,138,.25)}
+    input[type="range"]{width:100%}
+
+    /* Checklist */
+    .list{display:grid; gap:10px}
+    .item{display:flex; gap:10px; align-items:center; background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); padding:10px 12px; border-radius:12px}
+    .item input[type=checkbox]{width:18px; height:18px}
+    .item label{flex:1}
+    .item.done label{opacity:.6; text-decoration: line-through}
+    .add{display:flex; gap:10px}
+    .add input{flex:1; border-radius:10px; padding:10px 12px; border:1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color:var(--text)}
+
+    /* Timer */
+    .time{font-variant-numeric: tabular-nums; font-size: 38px; font-weight:800; letter-spacing: .4px}
+    .time small{font-size:12px; color:var(--muted)}
+
+    /* Chips */
+    .tips{display:flex; flex-wrap:wrap; gap:8px}
+    .chip{padding:8px 10px; border-radius:999px; background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); font-size:13px}
+
+    /* Breathing coach */
+    .coach{display:grid; place-items:center; gap:12px}
+    .orb{width: 160px; height:160px; border-radius:999px; border:2px dashed rgba(255,255,255,.25); display:grid; place-items:center; position:relative; overflow:visible}
+    .orb::after{content:""; position:absolute; inset: 12px; border-radius:999px; background: radial-gradient(60% 60% at 60% 40%, rgba(255,110,168,.55), rgba(122,215,255,.2)); filter: blur(2px); transition: transform 4s ease-in-out}
+    .orb.grow::after{transform: scale(1.16)}
+    .coach .phase{font-size:14px; color:var(--muted)}
+
+    /* Responsive layout */
+    @media (min-width: 840px){
+      .col-6{grid-column: span 6}
+      .col-4{grid-column: span 4}
+      .col-8{grid-column: span 8}
+    }
+
+    /* tiny footer */
+    footer{opacity:.7; font-size:12px; text-align:center; padding:24px}
+    a{color:var(--accent)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Period Care Kit <span class="heart">💖</span></div>
+    <div class="hint">offline‑friendly • no sign‑in • made by you, for her</div>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+      <!-- Pain level & tips -->
+      <section class="card col-6" id="pain-card">
+        <div class="head">
+          <h2>Pain level</h2>
+          <div class="hint" id="tier-label">mild</div>
+        </div>
+        <div class="body">
+          <div class="row">
+            <input id="pain" type="range" min="0" max="10" step="1" />
+            <div class="hint" id="pain-value">3 / 10</div>
+          </div>
+          <div style="height:10px"></div>
+          <div class="tips" id="tips"></div>
+        </div>
+      </section>
+
+      <!-- Heat timer -->
+      <section class="card col-6" id="timer-card">
+        <div class="head">
+          <h2>Heat therapy timer</h2>
+          <div class="hint">20 min on • 20 min off</div>
+        </div>
+        <div class="body">
+          <div class="row" style="justify-content:space-between; align-items:end">
+            <div>
+              <div class="time" id="clock">20:00</div>
+              <div class="hint">vibrate/notify when done</div>
+            </div>
+            <div>
+              <label class="hint">minutes
+                <input id="minutes" type="number" value="20" min="1" max="45" style="width:80px; margin-left:8px; border-radius:10px; padding:8px 10px; border:1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color:var(--text)"/>
+              </label>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+          <div class="row">
+            <button class="btn pink" id="start">Start</button>
+            <button class="btn sky" id="pause">Pause</button>
+            <button class="btn" id="reset">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hydration nudges & sweet notes -->
+      <section class="card col-8">
+        <div class="head"><h2>Hydration & gentle nudges</h2><div class="hint">tiny reminders = big comfort</div></div>
+        <div class="body">
+          <div class="row">
+            <label class="hint">remind every
+              <input id="hydrate-min" type="number" value="60" min="5" max="240" style="width:80px; margin:0 8px; border-radius:10px; padding:8px 10px; border:1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color:var(--text)"> minutes
+            </label>
+            <button class="btn good" id="toggle-hydrate">Turn on</button>
+          </div>
+          <div style="height:12px"></div>
+          <div class="row">
+            <button class="btn" id="note-btn">Send a sweet note 💌</button>
+            <span class="hint" id="note-text">(a thoughtful message will appear here)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Checklist -->
+      <section class="card col-4">
+        <div class="head"><h2>Comfort checklist</h2><button class="btn" id="clear-done" title="Clear completed">Clear ✓</button></div>
+        <div class="body">
+          <div class="list" id="list"></div>
+          <div class="add" style="margin-top:10px">
+            <input id="new-item" placeholder="Add custom item (e.g., call her mom)" />
+            <button class="btn" id="add">Add</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Breathing coach -->
+      <section class="card col-6">
+        <div class="head"><h2>Breathing coach — 4 • 7 • 8</h2><div class="hint">3 rounds can ease cramps & stress</div></div>
+        <div class="body coach">
+          <div class="orb" id="orb"></div>
+          <div class="time" id="breathe-time"><small>ready</small></div>
+          <div class="phase" id="phase">press start</div>
+          <div class="row">
+            <button class="btn pink" id="breathe-start">Start</button>
+            <button class="btn" id="breathe-stop">Stop</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick care links -->
+      <section class="card col-6">
+        <div class="head"><h2>Quick care</h2><div class="hint">one tap comfort</div></div>
+        <div class="body">
+          <div class="row" style="gap:10px; flex-wrap:wrap">
+            <a class="btn" href="https://youtu.be/Cb6wuzOurPc" target="_blank" rel="noreferrer">Tum se hi song</a>
+            <a class="btn" href="https://youtu.be/IpFX2vq8HKw" target="_blank" rel="noreferrer">Blue song</a>
+            <a class="btn" href="https://www.youtube.com/results?search_query=guided+meditation+for+pain+relief" target="_blank" rel="noreferrer">Quick meditation</a>
+            <button class="btn sky" id="confetti">Celebrate her 💫</button>
+          </div>
+          <div style="height:10px"></div>
+          <div class="hint">Tip: pair heat + breathing + water for best comfort. If pain is unusual or severe, consider medical advice.</div>
+        </div>
+      </section>
+
+    </div>
+    <footer>Made with 💖 by you. Works offline after first load. All data stays in this browser.</footer>
+  </div>
+
+<script>
+  // ===== Utilities =====
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const storage = {
+    get(key, fallback){ try{ return JSON.parse(localStorage.getItem(key)) ?? fallback }catch{ return fallback } },
+    set(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)) }catch{} },
+  };
+  const beep = () => { try{ const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.value=880; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(.0001, ctx.currentTime); g.gain.exponentialRampToValueAtTime(.2, ctx.currentTime+.02); o.start(); setTimeout(()=>{ g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime+.2); o.stop(ctx.currentTime+.25); ctx.close(); }, 220);}catch{} };
+  const notify = (title, body) => { if ('Notification' in window){ if (Notification.permission === 'granted'){ new Notification(title, { body }); } }
+    if (navigator.vibrate) navigator.vibrate([300,100,300]); beep(); };
+
+  // ===== Pain & tips =====
+  const TIPS = {
+    mild:[
+      'Light stretching: cat–cow, gentle twists (2–3 minutes)',
+      'Sip warm water or ginger tea',
+      'Snack: banana + peanut butter',
+      'Cozy hoodie + socks'
+    ],
+    moderate:[
+      'Warm compress / heating pad for 10–15 minutes',
+      'Deep breathing: 4–7–8 for 3 rounds',
+      'Magnesium‑rich snack: dark chocolate or nuts',
+      'Short walk (5–10 minutes) if comfy'
+    ],
+    severe:[
+      'Heat cycle: 20 minutes on, 20 minutes off',
+      'Knee‑to‑chest pose: 30–60s × 3',
+      'Hydrate + a little electrolyte',
+      'If pain is new or severe, consider clinician advice'
+    ]
+  };
+  const pain = $('#pain');
+  const painValue = $('#pain-value');
+  const tips = $('#tips');
+  const tierLabel = $('#tier-label');
+  const savedPain = storage.get('pck:pain', 3);
+  pain.value = savedPain;
+
+  function updateTips(){
+    const val = Number(pain.value);
+    painValue.textContent = `${val} / 10`;
+    const tier = val <= 3 ? 'mild' : val <= 6 ? 'moderate' : 'severe';
+    tierLabel.textContent = tier;
+    tips.innerHTML = '';
+    TIPS[tier].forEach(t => {
+      const el = document.createElement('span'); el.className='chip'; el.textContent=t; tips.appendChild(el);
+    });
+    storage.set('pck:pain', val);
+  }
+  pain.addEventListener('input', updateTips);
+  updateTips();
+
+  // ===== Heat timer =====
+  const minutesInput = $('#minutes');
+  const clock = $('#clock');
+  const startBtn = $('#start');
+  const pauseBtn = $('#pause');
+  const resetBtn = $('#reset');
+  let total = (storage.get('pck:heat-mins', 20))*60;
+  let left = storage.get('pck:left', total);
+  let running = false; let iv = null;
+  minutesInput.value = storage.get('pck:heat-mins', 20);
+
+  const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+  const renderClock = ()=> clock.textContent = fmt(left);
+
+  function tick(){
+    if (left<=0){ stopTimer(); left=0; renderClock(); notify('Heat timer done','Time to rest for ~20 minutes.'); return; }
+    left--; storage.set('pck:left', left); renderClock();
+  }
+  function startTimer(){ if (running) return; running=true; iv = setInterval(tick, 1000); }
+  function pauseTimer(){ running=false; if (iv) clearInterval(iv); iv=null; }
+  function stopTimer(){ pauseTimer(); }
+  function resetTimer(){ pauseTimer(); total = Number(minutesInput.value||20)*60; left = total; renderClock(); storage.set('pck:heat-mins', Number(minutesInput.value||20)); storage.set('pck:left', left); }
+
+  startBtn.onclick = ()=>{ if ('Notification' in window && Notification.permission !== 'granted'){ Notification.requestPermission(); } startTimer(); };
+  pauseBtn.onclick = ()=> pauseTimer();
+  resetBtn.onclick = ()=> resetTimer();
+  minutesInput.addEventListener('change', resetTimer);
+  renderClock();
+
+  // ===== Hydration nudges =====
+  const hydrateEvery = $('#hydrate-min');
+  const hydrateToggle = $('#toggle-hydrate');
+  let hydrateOn = storage.get('pck:hydrate-on', false);
+  let hydrateIv = null;
+  hydrateEvery.value = storage.get('pck:hydrate-mins', 60);
+  function setHydrateUI(){ hydrateToggle.textContent = hydrateOn? 'Turn off' : 'Turn on'; hydrateToggle.classList.toggle('good', hydrateOn); }
+  function startHydration(){
+    const mins = Number(hydrateEvery.value||60);
+    storage.set('pck:hydrate-mins', mins);
+    if (hydrateIv) clearInterval(hydrateIv);
+    hydrateIv = setInterval(()=> notify('Hydration reminder','Sip water and take a deep breath 💧'), mins*60*1000);
+    hydrateOn = true; storage.set('pck:hydrate-on', true); setHydrateUI(); notify('Hydration on', `I’ll remind every ${mins} min`);
+  }
+  function stopHydration(){ if (hydrateIv) clearInterval(hydrateIv); hydrateIv=null; hydrateOn=false; storage.set('pck:hydrate-on', false); setHydrateUI(); }
+  hydrateToggle.onclick = ()=> hydrateOn ? stopHydration() : startHydration();
+  setHydrateUI(); if (hydrateOn) startHydration();
+
+  // ===== Sweet notes =====
+  const NOTES = [
+    'i’m so proud of you — you’re stronger than you think 💪💖',
+    'tea’s on me, blanket’s ready, your comfort is my top priority today ☕🫶',
+    'sending gentle hugs and warm sunshine — i’m right here if you need anything 🌤️🤗',
+    'pain sucks. you don’t. i’ve got you, always. 💘',
+    'hydration break? i’ll bring the water. you bring that adorable smile 💧😊',
+    'let’s do nothing together — i booked us a date with the couch 🛋️✨',
+    'you deserve softness today. say the word and i’m on snack duty 🍫🍓'
+  ];
+  $('#note-btn').onclick = ()=>{ const t = NOTES[Math.floor(Math.random()*NOTES.length)]; $('#note-text').textContent=t; notify('Sweet note ready','Copy and send it 💌'); };
+
+  // ===== Checklist =====
+  const DEFAULTS = [
+    'Warm compress / heating pad',
+    'Water bottle filled',
+    'Comfort snack (dark chocolate, nuts, fruit)',
+    'Pain diary note made',
+    'Cozy setup: pillow + blanket',
+    'Playlist or comfort show queued'
+  ];
+  const listEl = $('#list');
+  let items = storage.get('pck:list', DEFAULTS.map(t=>({t,done:false})));
+  function saveList(){ storage.set('pck:list', items); }
+  function renderList(){ listEl.innerHTML=''; items.forEach((it, i)=>{
+    const row = document.createElement('div'); row.className = 'item' + (it.done?' done':'');
+    const cb = document.createElement('input'); cb.type='checkbox'; cb.checked=!!it.done; cb.onchange=()=>{ it.done = cb.checked; saveList(); renderList(); };
+    const label = document.createElement('label'); label.textContent = it.t;
+    const del = document.createElement('button'); del.className='btn'; del.textContent='✕'; del.onclick=()=>{ items.splice(i,1); saveList(); renderList(); };
+    row.append(cb,label,del); listEl.appendChild(row);
+  }); }
+  renderList();
+  $('#add').onclick = ()=>{ const v = $('#new-item').value.trim(); if(!v) return; items.push({t:v,done:false}); $('#new-item').value=''; saveList(); renderList(); };
+  $('#clear-done').onclick = ()=>{ items = items.filter(i=>!i.done); saveList(); renderList(); };
+
+  // ===== Breathing coach (4-7-8) =====
+  let breatheIv=null, breathePhase = 0, breatheCount=0, breatheLeft=0; // 0=inhale 4s,1=hold 7s,2=exhale 8s
+  const orb = $('#orb'); const phase = $('#phase'); const bt = $('#breathe-time');
+  function setPhase(p, seconds){ breathePhase=p; breatheLeft=seconds; updateBreatheUI(); if (breatheIv) clearInterval(breatheIv); breatheIv=setInterval(()=>{ breatheLeft--; updateBreatheUI(); if (breatheLeft<=0){ nextPhase(); } }, 1000); }
+  function updateBreatheUI(){ const names=['inhale','hold','exhale']; phase.textContent = names[breathePhase]; bt.innerHTML = `<strong>${String(breatheLeft).padStart(2,'0')}</strong> sec`; orb.classList.toggle('grow', breathePhase!==2); }
+  function nextPhase(){ if (breathePhase===0) setPhase(1,7); else if (breathePhase===1) setPhase(2,8); else { breatheCount++; if (breatheCount>=3){ stopBreathing(); notify('Breathing complete','How does that feel?'); return; } setPhase(0,4);} }
+  function startBreathing(){ breatheCount=0; setPhase(0,4); }
+  function stopBreathing(){ if (breatheIv) clearInterval(breatheIv); breatheIv=null; phase.textContent='press start'; bt.innerHTML = '<small>ready</small>'; orb.classList.remove('grow'); }
+  $('#breathe-start').onclick = startBreathing; $('#breathe-stop').onclick = stopBreathing;
+
+  // ===== Confetti (tiny) =====
+  function confettiBurst(){
+    const n=120; const body = document.body; const frag = document.createDocumentFragment();
+    for(let i=0;i<n;i++){
+      const s = document.createElement('span');
+      const size = Math.random()*6+4;
+      s.style.cssText = `position:fixed;left:${Math.random()*100}vw;top:-10px;width:${size}px;height:${size}px;background:${Math.random()>0.5?'#ff6ea8':'#7ad7ff'};border-radius:2px;opacity:.9;transform:translateY(0);transition: transform 1.8s ease-out, opacity 1.8s; z-index:9999;`;
+      frag.appendChild(s);
+      setTimeout(()=>{ s.style.transform = `translateY(${100+Math.random()*70}vh) rotate(${Math.random()*720-360}deg)`; s.style.opacity='0'; }, 10);
+      setTimeout(()=> s.remove(), 1900);
+    }
+    body.appendChild(frag);
+  }
+  $('#confetti').onclick = confettiBurst;
+
+  // Ask for notification permission early (optional)
+  if ('Notification' in window && Notification.permission === 'default'){
+    setTimeout(()=> Notification.requestPermission().catch(()=>{}), 1200);
+  }
+</script>
+</body>
+</html>
